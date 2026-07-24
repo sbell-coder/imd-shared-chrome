@@ -1,4 +1,5 @@
-export { Chrome } from './Chrome';
+export { Chrome, ModuleSwitcher, UserMenu } from './Chrome';
+export type { ModuleSwitcherProps, UserMenuProps } from './Chrome';
 export type { ChromeProps, ChromeUser, ChromeLinkProps } from './types';
 export {
   moduleRegistry,
