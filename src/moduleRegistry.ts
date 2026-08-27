@@ -54,7 +54,14 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
     name: 'Website CMS',
     path: '/admin',
     origin: CMS_ORIGIN,
-    menu: [{ label: 'Open Website CMS', path: '/admin' }],
+    menu: [
+      { label: 'Dashboard', path: '/admin' },
+      { label: 'Articles', path: '/admin/collections/articles' },
+      { label: 'Media', path: '/admin/collections/media' },
+      { label: 'Publications', path: '/admin/collections/publications' },
+      { label: 'Suppliers', path: '/admin/collections/suppliers' },
+      { label: 'Events', path: '/admin/collections/events' },
+    ],
   },
   crm: {
     id: 'crm',
@@ -124,6 +131,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
     menu: [
       { label: 'Dashboard', path: '/imd/newsletters' },
       { label: 'Builder', path: '/imd/newsletters/builder' },
+      { label: 'Issues', path: '/imd/newsletters/issues' },
       { label: 'Sent', path: '/imd/newsletters/sent' },
       { label: 'ReachMail', path: '/imd/newsletters/reachmail' },
       { label: 'Templates', path: '/imd/newsletters/templates' },
@@ -166,9 +174,20 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
 export const getModule = (id: string): ModuleEntry | undefined => moduleRegistry[id];
 export const getAllModules = (): ModuleEntry[] => Object.values(moduleRegistry);
 
+/** Absolute URL for a module's landing/dashboard page. */
+export const moduleLandingHref = (mod: ModuleEntry): string => `${mod.origin}${mod.path}`;
+
+/** Absolute URL for a menu item within a module. */
+export const menuItemHref = (mod: ModuleEntry, item: MenuItem): string => {
+  if (item.path.startsWith('http://') || item.path.startsWith('https://')) {
+    return item.path;
+  }
+  return `${mod.origin}${item.path}`;
+};
+
 /** Full absolute URL for a module's landing page — always safe to use in a plain <a href>. */
 export const moduleUrl = (id: string): string => {
   const mod = moduleRegistry[id];
   if (!mod) return MANAGE_ORIGIN;
-  return `${mod.origin}${mod.path}`;
+  return moduleLandingHref(mod);
 };
