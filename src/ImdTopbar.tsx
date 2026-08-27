@@ -67,6 +67,23 @@ function ensureTopbarStyles() {
     }
     .imd-topbar__nav-link:hover { color: #fff; }
     .imd-topbar__nav-link.is-active { color: #fff; font-weight: 600; }
+    .imd-topbar__icon-btn {
+      align-items: center;
+      background: transparent;
+      border: none;
+      border-radius: 999px;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      height: 36px;
+      justify-content: center;
+      text-decoration: none;
+      width: 36px;
+    }
+    .imd-topbar__icon-btn:hover {
+      background: rgba(255, 255, 255, 1);
+      color: #005a96;
+    }
     .imd-topbar__tools {
       align-items: center;
       display: flex;
