@@ -133,6 +133,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Builder', path: '/imd/newsletters/builder' },
       { label: 'Issues', path: '/imd/newsletters/issues' },
       { label: 'Sent', path: '/imd/newsletters/sent' },
+      { label: 'Subscribers', path: '/imd/newsletters/subscribers' },
       { label: 'ReachMail', path: '/imd/newsletters/reachmail' },
       { label: 'Templates', path: '/imd/newsletters/templates' },
     ],
