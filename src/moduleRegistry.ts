@@ -44,6 +44,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Extract', path: '/imd/pr/extract' },
       { label: 'Library', path: '/imd/pr/library' },
       { label: 'Issue Builder', path: '/imd/pr/ed-board' },
+      { label: 'Podcast', path: '/imd/pr/podcast' },
       { label: 'Companies', path: '/imd/pr/companies' },
       { label: 'Archive', path: '/imd/pr/archive' },
       { label: 'Settings', path: '/imd/pr/settings' },
