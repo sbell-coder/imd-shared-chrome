@@ -98,6 +98,7 @@ function ensureTopbarStyles() {
       .imd-topbar__brand { margin-right: 8px; }
       .imd-topbar__logo { height: 26px; }
       .imd-topbar__tools { gap: 6px; }
+      .imd-chrome__user-name { display: none; }
     }
     .imd-chrome__btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 500; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-family: inherit; }
     .imd-chrome__btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
@@ -203,7 +204,7 @@ function UserMenuInline({ user, onLogout, accountHref, renderLink, menuAlign = '
         {user ? (
           <>
             {user.avatarUrl ? <img className="imd-chrome__avatar" src={user.avatarUrl} alt="" /> : <span className="imd-chrome__avatar-fallback">{initials}</span>}
-            {user.name}
+            <span className="imd-chrome__user-name">{user.name}</span>
             <ChevronDown size={16} className={`imd-chrome__chev${open ? ' is-open' : ''}`} />
           </>
         ) : (
