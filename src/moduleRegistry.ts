@@ -57,6 +57,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
     origin: MANAGE_ORIGIN,
     menu: [
       { label: 'Booths', path: '/imd/booth-tours' },
+      { label: 'Approvals', path: '/imd/booth-tours/approvals' },
     ],
   },
   cms: {
