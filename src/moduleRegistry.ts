@@ -45,10 +45,18 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Library', path: '/imd/pr/library' },
       { label: 'Issue Builder', path: '/imd/pr/ed-board' },
       { label: 'Podcast', path: '/imd/pr/podcast' },
-      { label: 'Booth Tours', path: '/imd/pr/booth-tours' },
       { label: 'Companies', path: '/imd/pr/companies' },
       { label: 'Archive', path: '/imd/pr/archive' },
       { label: 'Settings', path: '/imd/pr/settings' },
+    ],
+  },
+  'booth-tours': {
+    id: 'booth-tours',
+    name: 'Booth Tours',
+    path: '/imd/booth-tours',
+    origin: MANAGE_ORIGIN,
+    menu: [
+      { label: 'Booths', path: '/imd/booth-tours' },
     ],
   },
   cms: {
