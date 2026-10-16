@@ -91,6 +91,14 @@ function ensureTopbarStyles() {
       gap: 16px;
       margin-left: auto;
     }
+    @media (max-width: 767px) {
+      /* Phones: the text links overlap; the module switcher and account menu still cover navigation. */
+      .imd-topbar__nav { display: none; }
+      .imd-topbar__inner { padding: 0 12px; }
+      .imd-topbar__brand { margin-right: 8px; }
+      .imd-topbar__logo { height: 26px; }
+      .imd-topbar__tools { gap: 6px; }
+    }
     .imd-chrome__btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 500; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-family: inherit; }
     .imd-chrome__btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
     .imd-chrome__chev { transition: transform 0.15s ease; }
