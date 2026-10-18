@@ -84,6 +84,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Dashboard', path: '/imd/crm' },
       { label: 'Advertisers', path: '/imd/crm/advertisers' },
       { label: 'Contacts', path: '/imd/crm/contacts' },
+      { label: 'Campaign', path: '/imd/crm/directory-campaign' },
       { label: 'Orders', path: '/imd/crm/orders' },
       { label: 'Issues', path: '/imd/crm/issues' },
       { label: 'Placements', path: '/imd/crm/placements' },
