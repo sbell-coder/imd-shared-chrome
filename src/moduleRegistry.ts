@@ -149,6 +149,8 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Issues', path: '/imd/newsletters/issues' },
       { label: 'Sent', path: '/imd/newsletters/sent' },
       { label: 'Subscribers', path: '/imd/newsletters/subscribers' },
+      { label: 'Circulation', path: '/imd/newsletters/circulation' },
+      { label: 'Audience Profile', path: '/imd/newsletters/audience' },
       { label: 'ReachMail', path: '/imd/newsletters/reachmail' },
       { label: 'Templates', path: '/imd/newsletters/templates' },
     ],
