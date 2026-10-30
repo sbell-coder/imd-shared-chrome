@@ -46,6 +46,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Issue Builder', path: '/imd/pr/ed-board' },
       { label: 'Podcast', path: '/imd/pr/podcast' },
       { label: 'Companies', path: '/imd/pr/companies' },
+      { label: 'Platinum Upgrades', path: '/imd/pr/platinum-upgrades' },
       { label: 'Archive', path: '/imd/pr/archive' },
       { label: 'Settings', path: '/imd/pr/settings' },
     ],
