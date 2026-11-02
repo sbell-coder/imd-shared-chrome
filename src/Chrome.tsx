@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ChevronDown, LayoutGrid, LogOut, User } from 'lucide-react';
-import { getAllModules, moduleUrl } from './moduleRegistry';
+import { getModule, getSwitcherModules, moduleUrl } from './moduleRegistry';
 import type { ChromeLinkProps, ChromeProps, ChromeUser } from './types';
 
 type RenderLink = (props: ChromeLinkProps) => ReactNode;
@@ -74,8 +74,8 @@ export function ModuleSwitcher({ currentModuleId, renderLink, menuAlign = 'right
   const [open, setOpen] = useState(false);
   const ref = useOutsideClick(() => setOpen(false));
   const Link = renderLink ?? DefaultLink;
-  const modules = getAllModules();
-  const current = modules.find((m) => m.id === currentModuleId);
+  const modules = getSwitcherModules();
+  const current = getModule(currentModuleId);
 
   return (
     <div className="imd-chrome__menu-wrap" ref={ref}>
@@ -87,12 +87,12 @@ export function ModuleSwitcher({ currentModuleId, renderLink, menuAlign = 'right
         aria-expanded={open}
       >
         <LayoutGrid size={16} />
-        {current?.name ?? 'Switch Module'}
+        {current?.name ?? 'Switch Section'}
         <ChevronDown size={16} className={`imd-chrome__chev${open ? ' is-open' : ''}`} />
       </button>
       {open && (
         <div className={`imd-chrome__menu imd-chrome__menu--${menuAlign}`} role="menu">
-          <div className="imd-chrome__menu-label">Switch Module</div>
+          <div className="imd-chrome__menu-label">Switch Section</div>
           {modules.map((m) => (
             <Link
               key={m.id}

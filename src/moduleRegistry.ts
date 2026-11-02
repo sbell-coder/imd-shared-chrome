@@ -1,22 +1,23 @@
 /**
  * Module Registry — SINGLE SOURCE OF TRUTH for every IMD internal app/module
- * and the top-level modules shown in the shared switcher.
+ * and the top-level sections shown in the shared switcher.
  *
  * Previously this list existed twice (metronic-ui's moduleRegistry.ts and a
  * hand-copied MODULES array in the CMS's CmsHeader.tsx) and had to be kept in
  * sync by hand — it drifted. Both apps now import this one file.
  *
- * `path` is used two ways depending on where the module lives:
- *  - `origin: 'self'` modules are same-app SPA routes (only meaningful within
- *    manage, which owns /imd/pr, /imd/crm, etc.)
- *  - `origin` set to an absolute URL means the module is a different deployed
- *    app entirely — the switcher must do a real navigation, not a client-side
- *    route change.
+ * Sections are organised by the job people are doing, not by how the code is
+ * built, so a section's menu can link to pages whose URLs live under another
+ * area (Reports links to /imd/banner-ads/reports). Old URLs keep working.
+ * `sectionForPath` picks the section for a URL: the longest matching menu path
+ * or `matches` prefix wins.
  */
 
 export interface MenuItem {
   label: string;
   path: string;
+  /** Only shown to admins. Hides the link; the page and API do their own checks. */
+  adminOnly?: boolean;
 }
 
 export interface ModuleEntry {
@@ -27,131 +28,88 @@ export interface ModuleEntry {
   /** Absolute origin this module is served from, e.g. 'https://manage.industrialmachinerydigest.com'. */
   origin: string;
   menu: MenuItem[];
+  /** URL prefixes that belong to this section without having a menu link of their own. */
+  matches?: string[];
+  /** false keeps it out of the switcher (it is reached from another section's menu). */
+  inSwitcher?: boolean;
 }
 
 export const MANAGE_ORIGIN = 'https://manage.industrialmachinerydigest.com';
 export const CMS_ORIGIN = 'https://cms.industrialmachinerydigest.com';
 
 export const moduleRegistry: Record<string, ModuleEntry> = {
-  pr: {
-    id: 'pr',
-    name: 'PR Intake',
+  home: {
+    id: 'home',
+    name: 'Home',
+    path: '/imd/home',
+    origin: MANAGE_ORIGIN,
+    menu: [],
+    matches: ['/imd/ops'],
+  },
+  clients: {
+    id: 'clients',
+    name: 'Clients',
+    path: '/imd/crm/advertisers',
+    origin: MANAGE_ORIGIN,
+    menu: [
+      { label: 'Advertisers', path: '/imd/crm/advertisers' },
+      { label: 'Contacts', path: '/imd/crm/contacts' },
+      { label: 'Proposals', path: '/imd/crm/proposals' },
+      { label: 'Orders', path: '/imd/crm/orders' },
+      { label: 'Invoices', path: '/imd/crm/invoices' },
+      { label: 'Payments', path: '/imd/crm/payments' },
+      { label: 'Issue Sales', path: '/imd/crm/issues' },
+      { label: 'Lockup', path: '/imd/crm/lockup' },
+      { label: 'Campaign', path: '/imd/crm/directory-campaign' },
+      { label: 'Platinum', path: '/imd/pr/platinum-upgrades' },
+    ],
+    matches: ['/imd/crm'],
+  },
+  content: {
+    id: 'content',
+    name: 'Content',
     path: '/imd/pr',
     origin: MANAGE_ORIGIN,
     menu: [
-      { label: 'Dashboard', path: '/imd/pr' },
       { label: 'Import', path: '/imd/pr/import' },
       { label: 'Extract', path: '/imd/pr/extract' },
       { label: 'Library', path: '/imd/pr/library' },
       { label: 'Issue Builder', path: '/imd/pr/ed-board' },
       { label: 'Podcast', path: '/imd/pr/podcast' },
-      { label: 'Companies', path: '/imd/pr/companies' },
-      { label: 'Platinum Upgrades', path: '/imd/pr/platinum-upgrades' },
-      { label: 'Archive', path: '/imd/pr/archive' },
-      { label: 'Settings', path: '/imd/pr/settings' },
-    ],
-  },
-  'booth-tours': {
-    id: 'booth-tours',
-    name: 'Booth Tours',
-    path: '/imd/booth-tours',
-    origin: MANAGE_ORIGIN,
-    menu: [
-      { label: 'Booths', path: '/imd/booth-tours' },
+      { label: 'Booth Tours', path: '/imd/booth-tours' },
       { label: 'Trade Shows', path: '/imd/booth-tours/shows' },
       { label: 'Approvals', path: '/imd/booth-tours/approvals' },
+      { label: 'Companies', path: '/imd/pr/companies' },
+      { label: 'Archive', path: '/imd/pr/archive' },
+      { label: 'Website CMS', path: `${CMS_ORIGIN}/admin` },
     ],
+    matches: ['/imd/pr'],
   },
-  cms: {
-    id: 'cms',
-    name: 'Website CMS',
-    path: '/admin',
-    origin: CMS_ORIGIN,
-    menu: [
-      { label: 'Dashboard', path: '/admin' },
-      { label: 'Articles', path: '/admin/collections/articles' },
-      { label: 'Media', path: '/admin/collections/media' },
-      { label: 'Publications', path: '/admin/collections/publications' },
-      { label: 'Suppliers', path: '/admin/collections/suppliers' },
-      { label: 'Events', path: '/admin/collections/events' },
-    ],
-  },
-  crm: {
-    id: 'crm',
-    name: 'CRM',
-    path: '/imd/crm',
+  banners: {
+    id: 'banners',
+    name: 'Banners',
+    path: '/imd/banner-ads/list',
     origin: MANAGE_ORIGIN,
     menu: [
-      { label: 'Dashboard', path: '/imd/crm' },
-      { label: 'Advertisers', path: '/imd/crm/advertisers' },
-      { label: 'Contacts', path: '/imd/crm/contacts' },
-      { label: 'Campaign', path: '/imd/crm/directory-campaign' },
-      { label: 'Orders', path: '/imd/crm/orders' },
-      { label: 'Issues', path: '/imd/crm/issues' },
-      { label: 'Placements', path: '/imd/crm/placements' },
-      { label: 'Proposals', path: '/imd/crm/proposals' },
-      { label: 'Lockup', path: '/imd/crm/lockup' },
-      { label: 'Invoices', path: '/imd/crm/invoices' },
-      { label: 'Payments', path: '/imd/crm/payments' },
-      { label: 'Reports', path: '/imd/crm/reports' },
-      { label: 'Communications', path: '/imd/crm/communications' },
-      { label: 'Settings', path: '/imd/crm/settings' },
-    ],
-  },
-  orchestrator: {
-    id: 'orchestrator',
-    name: 'Orchestrator',
-    path: '/orchestrator',
-    origin: MANAGE_ORIGIN,
-    menu: [
-      { label: 'Overview', path: '/orchestrator' },
-      { label: 'Pipelines', path: '/orchestrator/pipelines' },
-      { label: 'Workers', path: '/orchestrator/workers' },
-      { label: 'Monitoring', path: '/orchestrator/monitor' },
-    ],
-  },
-  'imd-ops': {
-    id: 'imd-ops',
-    name: 'IMD Ops',
-    path: '/imd/ops',
-    origin: MANAGE_ORIGIN,
-    menu: [
-      { label: 'Overview', path: '/imd/ops' },
-      { label: 'Banner Ads', path: '/imd/banner-ads' },
-      { label: 'Newsletters', path: '/imd/newsletters' },
-      { label: 'Social', path: '/imd/social' },
-    ],
-  },
-  'banner-ads': {
-    id: 'banner-ads',
-    name: 'Banner Ads',
-    path: '/imd/banner-ads',
-    origin: MANAGE_ORIGIN,
-    menu: [
-      { label: 'Dashboard', path: '/imd/banner-ads' },
-      { label: 'Campaigns', path: '/imd/banner-ads/campaigns' },
       { label: 'Banners', path: '/imd/banner-ads/list' },
       { label: 'Clients', path: '/imd/banner-ads/clients' },
-      { label: 'Create', path: '/imd/banner-ads/create' },
+      { label: 'Campaigns', path: '/imd/banner-ads/campaigns' },
       { label: 'Zones', path: '/imd/banner-ads/zones' },
-      { label: 'Creatives', path: '/imd/banner-ads/creatives' },
-      { label: 'Reports', path: '/imd/banner-ads/reports' },
     ],
+    matches: ['/imd/banner-ads'],
   },
-  newsletters: {
-    id: 'newsletters',
-    name: 'Newsletters',
-    path: '/imd/newsletters',
+  publishing: {
+    id: 'publishing',
+    name: 'Publishing',
+    path: '/imd/newsletters/issues',
     origin: MANAGE_ORIGIN,
     menu: [
-      { label: 'Dashboard', path: '/imd/newsletters' },
-      { label: 'Builder', path: '/imd/newsletters/builder' },
-      { label: 'Issues', path: '/imd/newsletters/issues' },
-      { label: 'Sent', path: '/imd/newsletters/sent' },
-      { label: 'Subscribers', path: '/imd/newsletters/subscribers' },
-      { label: 'ReachMail', path: '/imd/newsletters/reachmail' },
+      { label: 'Newsletters', path: '/imd/newsletters/issues' },
       { label: 'Templates', path: '/imd/newsletters/templates' },
+      { label: 'Social Queue', path: '/imd/social/queue' },
+      { label: 'Media Library', path: '/imd/social/media' },
     ],
+    matches: ['/imd/newsletters', '/imd/social'],
   },
   circulation: {
     id: 'circulation',
@@ -162,47 +120,99 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Overview', path: '/imd/circulation' },
       { label: 'Print', path: '/imd/circulation/print' },
       { label: 'Email', path: '/imd/circulation/email' },
+      { label: 'Subscribers', path: '/imd/newsletters/subscribers' },
       { label: 'Social', path: '/imd/circulation/social' },
       { label: 'Website', path: '/imd/circulation/website' },
       { label: 'Data Quality', path: '/imd/circulation/data-quality' },
     ],
   },
-  social: {
-    id: 'social',
-    name: 'Social Posting',
-    path: '/imd/social',
+  reports: {
+    id: 'reports',
+    name: 'Reports',
+    path: '/imd/ops/reports',
     origin: MANAGE_ORIGIN,
     menu: [
-      { label: 'Dashboard', path: '/imd/social' },
-      { label: 'Queue', path: '/imd/social/queue' },
-      { label: 'Accounts', path: '/imd/social/accounts' },
-      { label: 'Analytics', path: '/imd/social/analytics' },
-      { label: 'Media Library', path: '/imd/social/media' },
+      { label: 'Client Reports', path: '/imd/ops/reports' },
+      { label: 'Banners', path: '/imd/banner-ads/reports' },
+      { label: 'Banner Creatives', path: '/imd/banner-ads/creatives' },
+      { label: 'Newsletters', path: '/imd/newsletters/reachmail' },
+      { label: 'Social', path: '/imd/social/analytics' },
+      { label: 'Presentations', path: '/imd/crm/presentation-analytics' },
     ],
   },
-  activity: {
-    id: 'activity',
-    name: 'Activity',
-    path: '/imd/activity',
-    origin: MANAGE_ORIGIN,
-    menu: [{ label: 'Activity Stream', path: '/imd/activity' }],
-  },
-  system: {
-    id: 'system',
-    name: 'System',
-    path: '/errors',
+  settings: {
+    id: 'settings',
+    name: 'Settings',
+    path: '/user-settings',
     origin: MANAGE_ORIGIN,
     menu: [
-      { label: 'Error Logs', path: '/errors' },
-      { label: 'Tickets', path: '/tickets' },
-      { label: 'Notifications', path: '/notifications' },
-      { label: 'Search', path: '/search' },
+      { label: 'My Account', path: '/user-settings' },
+      { label: 'Team & Access', path: '/imd/ops/users', adminOnly: true },
+      { label: 'Sales Reps', path: '/imd/crm/reps' },
+      { label: 'PR Intake', path: '/imd/pr/settings' },
+      { label: 'Email', path: '/imd/newsletters/reachmail/settings' },
+      { label: 'Social Accounts', path: '/imd/social/accounts' },
+      { label: 'Monitoring', path: '/imd/orchestrator/monitoring', adminOnly: true },
+      { label: 'Pipelines', path: '/imd/orchestrator/pipelines', adminOnly: true },
+      { label: 'Workers', path: '/imd/orchestrator/workers', adminOnly: true },
+      { label: 'Jobs', path: '/imd/orchestrator/jobs', adminOnly: true },
+      { label: 'Errors', path: '/errors', adminOnly: true },
+      { label: 'Activity', path: '/imd/activity', adminOnly: true },
+    ],
+    matches: [
+      '/imd/orchestrator',
+      '/imd/newsletters/reachmail/preferred',
+      '/imd/newsletters/reachmail/folders',
+    ],
+  },
+  cms: {
+    id: 'cms',
+    name: 'Website CMS',
+    path: '/admin',
+    origin: CMS_ORIGIN,
+    inSwitcher: false,
+    menu: [
+      { label: 'Dashboard', path: '/admin' },
+      { label: 'Articles', path: '/admin/collections/articles' },
+      { label: 'Media', path: '/admin/collections/media' },
+      { label: 'Publications', path: '/admin/collections/publications' },
+      { label: 'Suppliers', path: '/admin/collections/suppliers' },
+      { label: 'Events', path: '/admin/collections/events' },
     ],
   },
 };
 
 export const getModule = (id: string): ModuleEntry | undefined => moduleRegistry[id];
 export const getAllModules = (): ModuleEntry[] => Object.values(moduleRegistry);
+/** The sections people pick from in the switcher. */
+export const getSwitcherModules = (): ModuleEntry[] =>
+  getAllModules().filter((mod) => mod.inSwitcher !== false);
+
+/** True when `pathname` is `prefix` or a page underneath it. */
+export const pathMatchesPrefix = (pathname: string, prefix: string): boolean =>
+  pathname === prefix || pathname.startsWith(`${prefix}/`);
+
+/**
+ * The Manage section a URL belongs to: the longest matching menu path or
+ * `matches` prefix wins, so /imd/banner-ads/reports is Reports while the rest of
+ * /imd/banner-ads is Banners. Undefined for pages that belong to no section
+ * (tickets, notifications, search), which keep the section you came from.
+ */
+export const sectionForPath = (pathname: string): ModuleEntry | undefined => {
+  let best: ModuleEntry | undefined;
+  let bestLength = -1;
+  for (const mod of getAllModules()) {
+    if (mod.origin !== MANAGE_ORIGIN) continue;
+    const prefixes = [mod.path, ...mod.menu.map((item) => item.path), ...(mod.matches ?? [])];
+    for (const prefix of prefixes) {
+      if (prefix.startsWith('/') && prefix.length > bestLength && pathMatchesPrefix(pathname, prefix)) {
+        best = mod;
+        bestLength = prefix.length;
+      }
+    }
+  }
+  return best;
+};
 
 /** Absolute URL for a module's landing/dashboard page. */
 export const moduleLandingHref = (mod: ModuleEntry): string => `${mod.origin}${mod.path}`;
