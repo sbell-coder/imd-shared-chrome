@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ChevronDown, LayoutGrid, LogOut, User } from 'lucide-react';
-import { getAllModules, getModule, menuItemHref, moduleLandingHref } from './moduleRegistry';
+import { getModule, getSwitcherModules, menuItemHref, moduleLandingHref, moduleUrl, pathMatchesPrefix } from './moduleRegistry';
 import type { ChromeLinkProps, ChromeUser } from './types';
 
 type RenderLink = (props: ChromeLinkProps) => ReactNode;
@@ -141,15 +141,12 @@ function useOutsideClick(onOutside: () => void) {
   return ref;
 }
 
-const ROOT_NAV_PATHS = new Set([
-  '/imd/pr', '/imd/crm', '/orchestrator', '/imd/ops', '/imd/banner-ads',
-  '/imd/newsletters', '/imd/social', '/admin', '/cms', '/errors',
-]);
+/** Links with sibling links underneath them only light up on their exact page. */
+const EXACT_NAV_PATHS = new Set(['/imd/booth-tours', '/imd/circulation', '/admin']);
 
-function isNavItemActive(modulePath: string, itemPath: string, pathname: string): boolean {
-  if (ROOT_NAV_PATHS.has(itemPath)) return pathname === itemPath;
-  if (itemPath === modulePath) return pathname === itemPath || pathname === `${itemPath}/`;
-  return pathname.startsWith(itemPath);
+function isNavItemActive(itemPath: string, pathname: string): boolean {
+  if (EXACT_NAV_PATHS.has(itemPath)) return pathname === itemPath || pathname === `${itemPath}/`;
+  return pathMatchesPrefix(pathname, itemPath);
 }
 
 export interface ImdTopbarProps {
@@ -168,18 +165,18 @@ function ModuleSwitcherInline({ currentModuleId, renderLink, menuAlign = 'right'
   const [open, setOpen] = useState(false);
   const ref = useOutsideClick(() => setOpen(false));
   const Link = renderLink ?? DefaultLink;
-  const modules = getAllModules();
-  const current = modules.find((m) => m.id === currentModuleId);
+  const modules = getSwitcherModules();
+  const current = getModule(currentModuleId);
   return (
     <div className="imd-chrome__menu-wrap" ref={ref}>
       <button type="button" className="imd-chrome__btn" onClick={() => setOpen((o) => !o)} aria-haspopup="true" aria-expanded={open}>
         <LayoutGrid size={16} />
-        {current?.name ?? 'Switch Module'}
+        {current?.name ?? 'Switch Section'}
         <ChevronDown size={16} className={`imd-chrome__chev${open ? ' is-open' : ''}`} />
       </button>
       {open && (
         <div className={`imd-chrome__menu imd-chrome__menu--${menuAlign}`} role="menu">
-          <div className="imd-chrome__menu-label">Switch Module</div>
+          <div className="imd-chrome__menu-label">Switch Section</div>
           {modules.map((m) => (
             <Link key={m.id} href={moduleLandingHref(m)} className={`imd-chrome__menu-item${m.id === currentModuleId ? ' is-current' : ''}`}>
               <span className={`imd-chrome__dot${m.id === currentModuleId ? ' is-current' : ''}`} />
@@ -228,18 +225,18 @@ export function ImdTopbar({ currentModuleId, pathname, user, onLogout, accountHr
   ensureTopbarStyles();
   const Link = renderLink ?? DefaultLink;
   const module = getModule(currentModuleId);
-  const navItems = module?.menu.filter((item) => item.label !== 'Dashboard') ?? [];
-  const logoHref = module ? moduleLandingHref(module) : '/';
+  const navItems = module?.menu.filter((item) => item.label !== 'Dashboard' && (!item.adminOnly || user?.isAdmin)) ?? [];
+  const logoHref = moduleUrl('home');
   return (
     <header className="imd-topbar">
       <div className="imd-topbar__inner">
-        <Link href={logoHref} className="imd-topbar__brand" title="Dashboard">
+        <Link href={logoHref} className="imd-topbar__brand" title="Home">
           <img src={logoSrc} alt={logoAlt} className="imd-topbar__logo" />
         </Link>
         <nav className="imd-topbar__nav">
           {navItems.map((item) => {
             const href = module ? menuItemHref(module, item) : item.path;
-            const active = module ? isNavItemActive(module.path, item.path, pathname) : false;
+            const active = isNavItemActive(item.path, pathname);
             return (
               <Link key={item.path} href={href} className={`imd-topbar__nav-link${active ? ' is-active' : ''}`}>
                 {item.label}
