@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ChevronDown, LayoutGrid, LogOut, User } from 'lucide-react';
+import type { MenuItem, ModuleEntry } from './moduleRegistry';
 import { getModule, getSwitcherModules, menuItemHref, moduleLandingHref, moduleUrl, pathMatchesPrefix } from './moduleRegistry';
 import type { ChromeLinkProps, ChromeUser } from './types';
 
@@ -55,9 +56,24 @@ function ensureTopbarStyles() {
       align-items: center;
       display: flex;
       flex: 1;
-      gap: 32px;
+      gap: 24px;
       min-width: 0;
     }
+    .imd-topbar__nav-more {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0;
+      white-space: nowrap;
+    }
+    .imd-topbar__nav-more:hover, .imd-topbar__nav-more.is-active { color: #fff; }
     .imd-topbar__nav-link {
       color: rgba(255, 255, 255, 0.8);
       font-size: 14px;
@@ -221,6 +237,78 @@ function UserMenuInline({ user, onLogout, accountHref, renderLink, menuAlign = '
   );
 }
 
+const MORE_BUTTON_WIDTH = 72;
+const NAV_GAP = 24;
+
+/** How many links fit in `available` px; the rest go under More. */
+function visibleLinkCount(widths: number[], available: number): number {
+  const total = widths.reduce((sum, width) => sum + width + NAV_GAP, -NAV_GAP);
+  if (total <= available) return widths.length;
+  let used = MORE_BUTTON_WIDTH;
+  let count = 0;
+  for (const width of widths) {
+    used += width + NAV_GAP;
+    if (used > available) break;
+    count += 1;
+  }
+  return count;
+}
+
+function TopbarNav({ module, pathname, renderLink }: { module: ModuleEntry; pathname: string; renderLink?: RenderLink }) {
+  const Link = renderLink ?? DefaultLink;
+  const items = module.menu;
+  const navRef = useRef<HTMLElement | null>(null);
+  const [widths, setWidths] = useState<number[] | null>(null);
+  const [available, setAvailable] = useState(0);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useOutsideClick(() => setMoreOpen(false));
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    setWidths(Array.from(nav.children).map((child) => (child as HTMLElement).offsetWidth));
+    setAvailable(nav.clientWidth);
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => setAvailable(nav.clientWidth));
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, []);
+
+  const count = widths ? visibleLinkCount(widths, available) : items.length;
+  const hidden = items.slice(count);
+  const hiddenActive = hidden.some((item) => isNavItemActive(item.path, pathname));
+  const renderItem = (item: MenuItem, className: string) => (
+    <Link key={item.path} href={menuItemHref(module, item)} className={`${className}${isNavItemActive(item.path, pathname) ? ' is-active' : ''}`}>
+      {item.label}
+    </Link>
+  );
+
+  return (
+    <nav className="imd-topbar__nav" ref={navRef}>
+      {items.slice(0, count).map((item) => renderItem(item, 'imd-topbar__nav-link'))}
+      {hidden.length > 0 && (
+        <div className="imd-chrome__menu-wrap" ref={moreRef}>
+          <button
+            type="button"
+            className={`imd-topbar__nav-more${hiddenActive ? ' is-active' : ''}`}
+            aria-haspopup="true"
+            aria-expanded={moreOpen}
+            onClick={() => setMoreOpen((open) => !open)}
+          >
+            More
+            <ChevronDown size={14} className={`imd-chrome__chev${moreOpen ? ' is-open' : ''}`} />
+          </button>
+          {moreOpen && (
+            <div className="imd-chrome__menu imd-chrome__menu--left" role="menu" onClick={() => setMoreOpen(false)}>
+              {hidden.map((item) => renderItem(item, 'imd-chrome__menu-item'))}
+            </div>
+          )}
+        </div>
+      )}
+    </nav>
+  );
+}
+
 export function ImdTopbar({ currentModuleId, pathname, user, onLogout, accountHref, renderLink, logoSrc = '/media/logos/imd.svg', logoAlt = 'IMD Logo', toolsSlot }: ImdTopbarProps) {
   ensureTopbarStyles();
   const Link = renderLink ?? DefaultLink;
@@ -233,17 +321,16 @@ export function ImdTopbar({ currentModuleId, pathname, user, onLogout, accountHr
         <Link href={logoHref} className="imd-topbar__brand" title="Home">
           <img src={logoSrc} alt={logoAlt} className="imd-topbar__logo" />
         </Link>
-        <nav className="imd-topbar__nav">
-          {navItems.map((item) => {
-            const href = module ? menuItemHref(module, item) : item.path;
-            const active = isNavItemActive(item.path, pathname);
-            return (
-              <Link key={item.path} href={href} className={`imd-topbar__nav-link${active ? ' is-active' : ''}`}>
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {module ? (
+          <TopbarNav
+            key={`${module.id}-${navItems.length}`}
+            module={{ ...module, menu: navItems }}
+            pathname={pathname}
+            renderLink={renderLink}
+          />
+        ) : (
+          <nav className="imd-topbar__nav" />
+        )}
         <div className="imd-topbar__tools">
           {toolsSlot}
           <ModuleSwitcherInline currentModuleId={currentModuleId} renderLink={renderLink} menuAlign="right" />
