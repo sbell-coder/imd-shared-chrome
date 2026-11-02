@@ -74,7 +74,8 @@ function ensureTopbarStyles() {
       white-space: nowrap;
     }
     .imd-topbar__nav-more:hover, .imd-topbar__nav-more.is-open { color: #fff; }
-    .imd-topbar__nav a.imd-topbar__nav-link { font-size: 14px; font-weight: 500; line-height: normal; }
+    .imd-topbar__nav a.imd-topbar__nav-link { color: rgba(255, 255, 255, 0.8); font-size: 14px; font-weight: 500; line-height: normal; }
+    .imd-topbar__nav a.imd-topbar__nav-link:hover { color: #fff; }
     .imd-topbar__nav-more.is-active, .imd-topbar__nav a.imd-topbar__nav-link.is-active { color: #fff; font-weight: 600; box-shadow: 0 2px 0 #fff; }
     .imd-topbar__panel { max-height: calc(100dvh - 72px); overflow-y: auto; }
     .imd-chrome__menu.imd-topbar__panel--wide { column-count: 2; column-gap: 0; width: 440px; }
