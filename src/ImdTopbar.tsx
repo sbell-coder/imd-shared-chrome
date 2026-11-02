@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ChevronDown, LayoutGrid, LogOut, User } from 'lucide-react';
 import type { MenuItem, ModuleEntry } from './moduleRegistry';
-import { getModule, getSwitcherModules, menuItemHref, moduleLandingHref, moduleUrl, pathMatchesPrefix } from './moduleRegistry';
+import { getSwitcherModules, menuItemHref, moduleLandingHref, moduleUrl, pathMatchesPrefix } from './moduleRegistry';
 import type { ChromeLinkProps, ChromeUser } from './types';
 
 type RenderLink = (props: ChromeLinkProps) => ReactNode;
@@ -60,29 +60,33 @@ function ensureTopbarStyles() {
       min-width: 0;
     }
     .imd-topbar__nav-more {
+      align-items: center;
       background: transparent;
       border: none;
       color: rgba(255, 255, 255, 0.8);
       cursor: pointer;
       display: inline-flex;
-      align-items: center;
-      gap: 4px;
       font: inherit;
       font-size: 14px;
       font-weight: 500;
+      gap: 3px;
       padding: 0;
       white-space: nowrap;
     }
-    .imd-topbar__nav-more:hover, .imd-topbar__nav-more.is-active { color: #fff; }
-    .imd-topbar__nav-link {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-      white-space: nowrap;
+    .imd-topbar__nav-more:hover, .imd-topbar__nav-more.is-open { color: #fff; }
+    .imd-topbar__nav a.imd-topbar__nav-link { font-size: 14px; font-weight: 500; line-height: normal; }
+    .imd-topbar__nav-more.is-active, .imd-topbar__nav a.imd-topbar__nav-link.is-active { color: #fff; font-weight: 600; box-shadow: 0 2px 0 #fff; }
+    .imd-topbar__panel { max-height: calc(100dvh - 72px); overflow-y: auto; }
+    .imd-chrome__menu.imd-topbar__panel--wide { column-count: 2; column-gap: 0; width: 440px; }
+    .imd-topbar__panel .imd-chrome__menu-item, .imd-topbar__panel .imd-chrome__menu-label { box-sizing: border-box; white-space: nowrap; }
+    .imd-topbar__panel-group { break-inside: avoid; }
+    .imd-chrome__menu-wrap.imd-topbar__compact { display: none; }
+    @media (max-width: 1099px) {
+      /* Too narrow for every section in one row: the same menu goes under one button. */
+      .imd-topbar__nav { visibility: hidden; flex: 0 0 0; overflow: hidden; }
+      .imd-chrome__menu-wrap.imd-topbar__compact { display: inline-block; }
     }
     .imd-topbar__nav-link:hover { color: #fff; }
-    .imd-topbar__nav-link.is-active { color: #fff; font-weight: 600; }
     .imd-topbar__icon-btn {
       align-items: center;
       background: transparent;
@@ -157,17 +161,27 @@ function useOutsideClick(onOutside: () => void) {
   return ref;
 }
 
-/** Links with sibling links underneath them only light up on their exact page. */
-const EXACT_NAV_PATHS = new Set(['/imd/booth-tours', '/imd/circulation', '/admin']);
+interface VisibleSection {
+  section: ModuleEntry;
+  items: MenuItem[];
+}
 
-function isNavItemActive(itemPath: string, pathname: string): boolean {
-  if (EXACT_NAV_PATHS.has(itemPath)) return pathname === itemPath || pathname === `${itemPath}/`;
+/** Links with sibling links underneath them only light up on their exact page. */
+const EXACT_NAV_PATHS = new Set(['/imd/pr', '/imd/booth-tours', '/imd/circulation', '/imd/newsletters/issues']);
+
+/** `location` is the path plus any query, since Reports and Settings pick their tab with one. */
+function isItemCurrent(itemPath: string, location: string): boolean {
+  const pathname = location.split('?')[0];
+  if (itemPath.includes('?')) return location.startsWith(itemPath);
+  if (EXACT_NAV_PATHS.has(itemPath)) return pathname === itemPath;
   return pathMatchesPrefix(pathname, itemPath);
 }
 
 export interface ImdTopbarProps {
   currentModuleId: string;
   pathname: string;
+  /** Query string, so tabs chosen by query can be shown as current. */
+  search?: string;
   user: ChromeUser | null | undefined;
   onLogout: () => void;
   accountHref?: string;
@@ -175,34 +189,6 @@ export interface ImdTopbarProps {
   logoSrc?: string;
   logoAlt?: string;
   toolsSlot?: ReactNode;
-}
-
-function ModuleSwitcherInline({ currentModuleId, renderLink, menuAlign = 'right' }: { currentModuleId: string; renderLink?: RenderLink; menuAlign?: 'left' | 'right' }) {
-  const [open, setOpen] = useState(false);
-  const ref = useOutsideClick(() => setOpen(false));
-  const Link = renderLink ?? DefaultLink;
-  const modules = getSwitcherModules();
-  const current = getModule(currentModuleId);
-  return (
-    <div className="imd-chrome__menu-wrap" ref={ref}>
-      <button type="button" className="imd-chrome__btn" onClick={() => setOpen((o) => !o)} aria-haspopup="true" aria-expanded={open}>
-        <LayoutGrid size={16} />
-        {current?.name ?? 'Switch Section'}
-        <ChevronDown size={16} className={`imd-chrome__chev${open ? ' is-open' : ''}`} />
-      </button>
-      {open && (
-        <div className={`imd-chrome__menu imd-chrome__menu--${menuAlign}`} role="menu">
-          <div className="imd-chrome__menu-label">Switch Section</div>
-          {modules.map((m) => (
-            <Link key={m.id} href={moduleLandingHref(m)} className={`imd-chrome__menu-item${m.id === currentModuleId ? ' is-current' : ''}`}>
-              <span className={`imd-chrome__dot${m.id === currentModuleId ? ' is-current' : ''}`} />
-              {m.name}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
 }
 
 function UserMenuInline({ user, onLogout, accountHref, renderLink, menuAlign = 'right' }: { user: ChromeUser | null | undefined; onLogout: () => void; accountHref?: string; renderLink?: RenderLink; menuAlign?: 'left' | 'right' }) {
@@ -237,103 +223,149 @@ function UserMenuInline({ user, onLogout, accountHref, renderLink, menuAlign = '
   );
 }
 
-const MORE_BUTTON_WIDTH = 72;
-const NAV_GAP = 24;
+type SectionLinksProps = {
+  section: ModuleEntry;
+  items: MenuItem[];
+  location: string;
+  renderLink?: RenderLink;
+};
 
-/** How many links fit in `available` px; the rest go under More. */
-function visibleLinkCount(widths: number[], available: number): number {
-  const total = widths.reduce((sum, width) => sum + width + NAV_GAP, -NAV_GAP);
-  if (total <= available) return widths.length;
-  let used = MORE_BUTTON_WIDTH;
-  let count = 0;
-  for (const width of widths) {
-    used += width + NAV_GAP;
-    if (used > available) break;
-    count += 1;
-  }
-  return count;
+/** One section's links, under their group headings. */
+function SectionLinks({ section, items, location, renderLink }: SectionLinksProps) {
+  const Link = renderLink ?? DefaultLink;
+  const groups = items.reduce<Array<{ label?: string; items: MenuItem[] }>>((all, item) => {
+    const last = all[all.length - 1];
+    if (last && last.label === item.group) return [...all.slice(0, -1), { ...last, items: [...last.items, item] }];
+    return [...all, { label: item.group, items: [item] }];
+  }, []);
+  return (
+    <>
+      {groups.map((group) => (
+        <div key={group.label ?? section.id} className="imd-topbar__panel-group">
+          {group.label && <div className="imd-chrome__menu-label">{group.label}</div>}
+          {group.items.map((item) => (
+            <Link
+              key={item.path}
+              href={menuItemHref(section, item)}
+              className={`imd-chrome__menu-item${isItemCurrent(item.path, location) ? ' is-current' : ''}`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      ))}
+    </>
+  );
 }
 
-function TopbarNav({ module, pathname, renderLink }: { module: ModuleEntry; pathname: string; renderLink?: RenderLink }) {
+const WIDE_SECTION_LINKS = 12;
+
+function TopbarNav({ sections, currentId, location, renderLink }: { sections: VisibleSection[]; currentId: string; location: string; renderLink?: RenderLink }) {
   const Link = renderLink ?? DefaultLink;
-  const items = module.menu;
-  const navRef = useRef<HTMLElement | null>(null);
-  const [widths, setWidths] = useState<number[] | null>(null);
-  const [available, setAvailable] = useState(0);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useOutsideClick(() => setMoreOpen(false));
-
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-    setWidths(Array.from(nav.children).map((child) => (child as HTMLElement).offsetWidth));
-    setAvailable(nav.clientWidth);
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(() => setAvailable(nav.clientWidth));
-    observer.observe(nav);
-    return () => observer.disconnect();
-  }, []);
-
-  const count = widths ? visibleLinkCount(widths, available) : items.length;
-  const hidden = items.slice(count);
-  const hiddenActive = hidden.some((item) => isNavItemActive(item.path, pathname));
-  const renderItem = (item: MenuItem, className: string) => (
-    <Link key={item.path} href={menuItemHref(module, item)} className={`${className}${isNavItemActive(item.path, pathname) ? ' is-active' : ''}`}>
-      {item.label}
-    </Link>
-  );
+  const [openId, setOpenId] = useState<string | null>(null);
+  const ref = useOutsideClick(() => setOpenId(null));
 
   return (
-    <nav className="imd-topbar__nav" ref={navRef}>
-      {items.slice(0, count).map((item) => renderItem(item, 'imd-topbar__nav-link'))}
-      {hidden.length > 0 && (
-        <div className="imd-chrome__menu-wrap" ref={moreRef}>
-          <button
-            type="button"
-            className={`imd-topbar__nav-more${hiddenActive ? ' is-active' : ''}`}
-            aria-haspopup="true"
-            aria-expanded={moreOpen}
-            onClick={() => setMoreOpen((open) => !open)}
-          >
-            More
-            <ChevronDown size={14} className={`imd-chrome__chev${moreOpen ? ' is-open' : ''}`} />
-          </button>
-          {moreOpen && (
-            <div className="imd-chrome__menu imd-chrome__menu--left" role="menu" onClick={() => setMoreOpen(false)}>
-              {hidden.map((item) => renderItem(item, 'imd-chrome__menu-item'))}
-            </div>
-          )}
-        </div>
-      )}
-    </nav>
+    <div
+      ref={ref}
+      className="imd-topbar__nav"
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') setOpenId(null);
+      }}
+    >
+      {sections.map(({ section, items }) => {
+        const isCurrent = section.id === currentId;
+        if (items.length === 0) {
+          return (
+            <Link key={section.id} href={moduleLandingHref(section)} className={`imd-topbar__nav-link${isCurrent ? ' is-active' : ''}`}>
+              {section.name}
+            </Link>
+          );
+        }
+        const isOpen = openId === section.id;
+        return (
+          <div key={section.id} className="imd-chrome__menu-wrap">
+            <button
+              type="button"
+              className={`imd-topbar__nav-more${isCurrent ? ' is-active' : ''}${isOpen ? ' is-open' : ''}`}
+              aria-haspopup="true"
+              aria-expanded={isOpen}
+              onClick={() => setOpenId(isOpen ? null : section.id)}
+              onMouseEnter={() => {
+                if (openId) setOpenId(section.id);
+              }}
+            >
+              {section.name}
+              <ChevronDown size={14} className={`imd-chrome__chev${isOpen ? ' is-open' : ''}`} />
+            </button>
+            {isOpen && (
+              <div
+                className={`imd-chrome__menu imd-chrome__menu--left imd-topbar__panel${items.length >= WIDE_SECTION_LINKS ? ' imd-topbar__panel--wide' : ''}`}
+                onClick={() => setOpenId(null)}
+              >
+                <SectionLinks section={section} items={items} location={location} renderLink={renderLink} />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
-export function ImdTopbar({ currentModuleId, pathname, user, onLogout, accountHref, renderLink, logoSrc = '/media/logos/imd.svg', logoAlt = 'IMD Logo', toolsSlot }: ImdTopbarProps) {
+/** Below 1100px every section sits under one Menu button. */
+function CompactMenu({ sections, location, renderLink }: { sections: VisibleSection[]; location: string; renderLink?: RenderLink }) {
+  const Link = renderLink ?? DefaultLink;
+  const [open, setOpen] = useState(false);
+  const ref = useOutsideClick(() => setOpen(false));
+  return (
+    <div className="imd-chrome__menu-wrap imd-topbar__compact" ref={ref}>
+      <button type="button" className="imd-chrome__btn" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
+        <LayoutGrid size={16} />
+        Menu
+        <ChevronDown size={16} className={`imd-chrome__chev${open ? ' is-open' : ''}`} />
+      </button>
+      {open && (
+        <div className="imd-chrome__menu imd-chrome__menu--right imd-topbar__panel" onClick={() => setOpen(false)}>
+          {sections.map(({ section, items }) => (
+            <div key={section.id}>
+              {items.length === 0 ? (
+                <Link href={moduleLandingHref(section)} className="imd-chrome__menu-item">{section.name}</Link>
+              ) : (
+                <>
+                  <div className="imd-chrome__menu-item"><strong>{section.name}</strong></div>
+                  <SectionLinks section={section} items={items} location={location} renderLink={renderLink} />
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ImdTopbar({ currentModuleId, pathname, search = '', user, onLogout, accountHref, renderLink, logoSrc = '/media/logos/imd.svg', logoAlt = 'IMD Logo', toolsSlot }: ImdTopbarProps) {
   ensureTopbarStyles();
   const Link = renderLink ?? DefaultLink;
-  const module = getModule(currentModuleId);
-  const navItems = module?.menu.filter((item) => item.label !== 'Dashboard' && (!item.adminOnly || user?.isAdmin)) ?? [];
+  const location = `${pathname}${search}`;
   const logoHref = moduleUrl('home');
+  const sections: VisibleSection[] = getSwitcherModules().map((section) => ({
+    section,
+    items: section.menu.filter((item) => !item.adminOnly || user?.isAdmin),
+  }));
+  // The CMS sits under Content in the menu.
+  const currentId = currentModuleId === 'cms' ? 'content' : currentModuleId;
   return (
     <header className="imd-topbar">
       <div className="imd-topbar__inner">
         <Link href={logoHref} className="imd-topbar__brand" title="Home">
           <img src={logoSrc} alt={logoAlt} className="imd-topbar__logo" />
         </Link>
-        {module ? (
-          <TopbarNav
-            key={`${module.id}-${navItems.length}`}
-            module={{ ...module, menu: navItems }}
-            pathname={pathname}
-            renderLink={renderLink}
-          />
-        ) : (
-          <nav className="imd-topbar__nav" />
-        )}
+        <TopbarNav sections={sections} currentId={currentId} location={location} renderLink={renderLink} />
         <div className="imd-topbar__tools">
           {toolsSlot}
-          <ModuleSwitcherInline currentModuleId={currentModuleId} renderLink={renderLink} menuAlign="right" />
+          <CompactMenu sections={sections} location={location} renderLink={renderLink} />
           <UserMenuInline user={user} onLogout={onLogout} accountHref={accountHref} renderLink={renderLink} menuAlign="right" />
         </div>
       </div>
