@@ -135,23 +135,10 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
   settings: {
     id: 'settings',
     name: 'Settings',
-    path: '/user-settings',
+    path: '/imd/settings',
     origin: MANAGE_ORIGIN,
-    menu: [
-      { label: 'My Account', path: '/user-settings' },
-      { label: 'Team & Access', path: '/imd/ops/users', adminOnly: true },
-      { label: 'Sales Reps', path: '/imd/crm/reps' },
-      { label: 'PR Intake', path: '/imd/pr/settings' },
-      { label: 'Email', path: '/imd/newsletters/reachmail' },
-      { label: 'Social Accounts', path: '/imd/social/accounts' },
-      { label: 'Monitoring', path: '/imd/orchestrator/monitoring', adminOnly: true },
-      { label: 'Pipelines', path: '/imd/orchestrator/pipelines', adminOnly: true },
-      { label: 'Workers', path: '/imd/orchestrator/workers', adminOnly: true },
-      { label: 'Jobs', path: '/imd/orchestrator/jobs', adminOnly: true },
-      { label: 'Errors', path: '/errors', adminOnly: true },
-      { label: 'Activity', path: '/imd/activity', adminOnly: true },
-    ],
-    matches: ['/imd/orchestrator'],
+    // One page with its own menu. Older settings URLs redirect to it.
+    menu: [],
   },
   cms: {
     id: 'cms',
