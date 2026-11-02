@@ -105,9 +105,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
     origin: MANAGE_ORIGIN,
     menu: [
       { label: 'Newsletters', path: '/imd/newsletters/issues' },
-      { label: 'Templates', path: '/imd/newsletters/templates' },
       { label: 'Social Queue', path: '/imd/social/queue' },
-      { label: 'Media Library', path: '/imd/social/media' },
     ],
     matches: ['/imd/newsletters', '/imd/social'],
   },
@@ -129,16 +127,10 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
   reports: {
     id: 'reports',
     name: 'Reports',
-    path: '/imd/ops/reports',
+    path: '/imd/reports',
     origin: MANAGE_ORIGIN,
-    menu: [
-      { label: 'Client Reports', path: '/imd/ops/reports' },
-      { label: 'Banners', path: '/imd/banner-ads/reports' },
-      { label: 'Banner Creatives', path: '/imd/banner-ads/creatives' },
-      { label: 'Newsletters', path: '/imd/newsletters/reachmail' },
-      { label: 'Social', path: '/imd/social/analytics' },
-      { label: 'Presentations', path: '/imd/crm/presentation-analytics' },
-    ],
+    // One page with tabs, so no menu links. Older report URLs redirect to it.
+    menu: [],
   },
   settings: {
     id: 'settings',
@@ -150,7 +142,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Team & Access', path: '/imd/ops/users', adminOnly: true },
       { label: 'Sales Reps', path: '/imd/crm/reps' },
       { label: 'PR Intake', path: '/imd/pr/settings' },
-      { label: 'Email', path: '/imd/newsletters/reachmail/settings' },
+      { label: 'Email', path: '/imd/newsletters/reachmail' },
       { label: 'Social Accounts', path: '/imd/social/accounts' },
       { label: 'Monitoring', path: '/imd/orchestrator/monitoring', adminOnly: true },
       { label: 'Pipelines', path: '/imd/orchestrator/pipelines', adminOnly: true },
@@ -159,11 +151,7 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { label: 'Errors', path: '/errors', adminOnly: true },
       { label: 'Activity', path: '/imd/activity', adminOnly: true },
     ],
-    matches: [
-      '/imd/orchestrator',
-      '/imd/newsletters/reachmail/preferred',
-      '/imd/newsletters/reachmail/folders',
-    ],
+    matches: ['/imd/orchestrator'],
   },
   cms: {
     id: 'cms',
