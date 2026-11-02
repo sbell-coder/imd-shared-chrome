@@ -74,15 +74,17 @@ function ensureTopbarStyles() {
       white-space: nowrap;
     }
     .imd-topbar__nav-more:hover, .imd-topbar__nav-more.is-open { color: #fff; }
-    .imd-topbar__nav-more.is-active, .imd-topbar__nav-link.is-active { color: #fff; font-weight: 600; box-shadow: 0 2px 0 #fff; }
+    .imd-topbar__nav a.imd-topbar__nav-link { font-size: 14px; font-weight: 500; line-height: normal; }
+    .imd-topbar__nav-more.is-active, .imd-topbar__nav a.imd-topbar__nav-link.is-active { color: #fff; font-weight: 600; box-shadow: 0 2px 0 #fff; }
     .imd-topbar__panel { max-height: calc(100dvh - 72px); overflow-y: auto; }
-    .imd-topbar__panel--wide { column-count: 2; column-gap: 0; min-width: 400px; }
+    .imd-chrome__menu.imd-topbar__panel--wide { column-count: 2; column-gap: 0; width: 440px; }
+    .imd-topbar__panel .imd-chrome__menu-item, .imd-topbar__panel .imd-chrome__menu-label { box-sizing: border-box; white-space: nowrap; }
     .imd-topbar__panel-group { break-inside: avoid; }
-    .imd-topbar__compact { display: none; }
+    .imd-chrome__menu-wrap.imd-topbar__compact { display: none; }
     @media (max-width: 1099px) {
       /* Too narrow for every section in one row: the same menu goes under one button. */
       .imd-topbar__nav { visibility: hidden; flex: 0 0 0; overflow: hidden; }
-      .imd-topbar__compact { display: inline-block; }
+      .imd-chrome__menu-wrap.imd-topbar__compact { display: inline-block; }
     }
     .imd-topbar__nav-link:hover { color: #fff; }
     .imd-topbar__icon-btn {
