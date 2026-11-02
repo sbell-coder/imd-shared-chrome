@@ -81,6 +81,20 @@ function ensureTopbarStyles() {
     .imd-chrome__menu.imd-topbar__panel--wide { column-count: 2; column-gap: 0; width: 440px; }
     .imd-topbar__panel .imd-chrome__menu-item, .imd-topbar__panel .imd-chrome__menu-label { box-sizing: border-box; white-space: nowrap; }
     .imd-topbar__panel-group { break-inside: avoid; }
+    /* Group headings read as labels, not links: a shaded band, with the links indented under it. */
+    .imd-topbar__panel .imd-chrome__menu-label {
+      background: #eef2f7;
+      color: #1f4f85;
+      cursor: default;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 6px 14px;
+      text-transform: uppercase;
+    }
+    .imd-topbar__panel .imd-topbar__panel-group + .imd-topbar__panel-group .imd-chrome__menu-label { margin-top: 6px; }
+    .imd-topbar__panel .imd-topbar__panel-group:has(.imd-chrome__menu-label) .imd-chrome__menu-item { padding-left: 22px; }
+    .imd-topbar__panel-section { background: #1f4f85; color: #fff; font-size: 13px; font-weight: 700; padding: 7px 14px; }
     .imd-chrome__menu-wrap.imd-topbar__compact { display: none; }
     @media (max-width: 1399px) {
       /* Names vary in length, so the avatar stands in on smaller screens. */
@@ -338,7 +352,7 @@ function CompactMenu({ sections, location, renderLink }: { sections: VisibleSect
                 <Link href={moduleLandingHref(section)} className="imd-chrome__menu-item">{section.name}</Link>
               ) : (
                 <>
-                  <div className="imd-chrome__menu-item"><strong>{section.name}</strong></div>
+                  <div className="imd-topbar__panel-section">{section.name}</div>
                   <SectionLinks section={section} items={items} location={location} renderLink={renderLink} />
                 </>
               )}
