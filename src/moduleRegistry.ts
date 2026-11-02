@@ -84,14 +84,22 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { group: 'Booth Tours', label: 'Booths', path: '/imd/booth-tours' },
       { group: 'Booth Tours', label: 'Trade Shows', path: '/imd/booth-tours/shows' },
       { group: 'Booth Tours', label: 'Approvals', path: '/imd/booth-tours/approvals' },
-      { group: 'Website', label: 'CMS Home', path: `${CMS_ORIGIN}/admin` },
-      { group: 'Website', label: 'Articles', path: `${CMS_ORIGIN}/admin/collections/articles` },
-      { group: 'Website', label: 'Media', path: `${CMS_ORIGIN}/admin/collections/media` },
-      { group: 'Website', label: 'Publications', path: `${CMS_ORIGIN}/admin/collections/publications` },
-      { group: 'Website', label: 'Suppliers', path: `${CMS_ORIGIN}/admin/collections/suppliers` },
-      { group: 'Website', label: 'Events', path: `${CMS_ORIGIN}/admin/collections/events` },
     ],
     matches: ['/imd/pr'],
+  },
+  cms: {
+    id: 'cms',
+    name: 'Website CMS',
+    path: '/admin',
+    origin: CMS_ORIGIN,
+    menu: [
+      { label: 'CMS Home', path: '/admin' },
+      { label: 'Articles', path: '/admin/collections/articles' },
+      { label: 'Media', path: '/admin/collections/media' },
+      { label: 'Publications', path: '/admin/collections/publications' },
+      { label: 'Suppliers', path: '/admin/collections/suppliers' },
+      { label: 'Events', path: '/admin/collections/events' },
+    ],
   },
   banners: {
     id: 'banners',
@@ -140,11 +148,9 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
     path: '/imd/reports',
     origin: MANAGE_ORIGIN,
     menu: [
-      { label: 'Client Reports', path: '/imd/reports?tab=client' },
+      { label: 'Platinum Report', path: '/imd/reports?tab=client' },
       { label: 'Banners', path: '/imd/reports?tab=banners' },
-      { label: 'Banner Creatives', path: '/imd/reports?tab=creatives' },
       { label: 'Newsletters', path: '/imd/reports?tab=newsletters' },
-      { label: 'Social', path: '/imd/reports?tab=social' },
       { label: 'Presentations', path: '/imd/reports?tab=presentations' },
       { label: 'Podcast', path: '/imd/reports?tab=podcast' },
     ],
@@ -170,15 +176,6 @@ export const moduleRegistry: Record<string, ModuleEntry> = {
       { group: 'System', label: 'Error Logs', path: '/imd/settings?section=errors', adminOnly: true },
       { group: 'System', label: 'Activity', path: '/imd/settings?section=activity', adminOnly: true },
     ],
-  },
-  // The CMS is its own app. Its links live under Content > Website; this entry names it in its header.
-  cms: {
-    id: 'cms',
-    name: 'Website CMS',
-    path: '/admin',
-    origin: CMS_ORIGIN,
-    inSwitcher: false,
-    menu: [],
   },
 };
 

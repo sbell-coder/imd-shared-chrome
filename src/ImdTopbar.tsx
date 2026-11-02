@@ -167,7 +167,7 @@ interface VisibleSection {
 }
 
 /** Links with sibling links underneath them only light up on their exact page. */
-const EXACT_NAV_PATHS = new Set(['/imd/pr', '/imd/booth-tours', '/imd/circulation', '/imd/newsletters/issues']);
+const EXACT_NAV_PATHS = new Set(['/imd/pr', '/imd/booth-tours', '/imd/circulation', '/imd/newsletters/issues', '/admin']);
 
 /** `location` is the path plus any query, since Reports and Settings pick their tab with one. */
 function isItemCurrent(itemPath: string, location: string): boolean {
@@ -354,15 +354,13 @@ export function ImdTopbar({ currentModuleId, pathname, search = '', user, onLogo
     section,
     items: section.menu.filter((item) => !item.adminOnly || user?.isAdmin),
   }));
-  // The CMS sits under Content in the menu.
-  const currentId = currentModuleId === 'cms' ? 'content' : currentModuleId;
   return (
     <header className="imd-topbar">
       <div className="imd-topbar__inner">
         <Link href={logoHref} className="imd-topbar__brand" title="Home">
           <img src={logoSrc} alt={logoAlt} className="imd-topbar__logo" />
         </Link>
-        <TopbarNav sections={sections} currentId={currentId} location={location} renderLink={renderLink} />
+        <TopbarNav sections={sections} currentId={currentModuleId} location={location} renderLink={renderLink} />
         <div className="imd-topbar__tools">
           {toolsSlot}
           <CompactMenu sections={sections} location={location} renderLink={renderLink} />
