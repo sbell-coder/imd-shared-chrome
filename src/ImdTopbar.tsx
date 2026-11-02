@@ -56,7 +56,7 @@ function ensureTopbarStyles() {
       align-items: center;
       display: flex;
       flex: 1;
-      gap: 16px;
+      gap: 14px;
       min-width: 0;
     }
     .imd-topbar__nav-more {
@@ -81,6 +81,10 @@ function ensureTopbarStyles() {
     .imd-topbar__panel .imd-chrome__menu-item, .imd-topbar__panel .imd-chrome__menu-label { box-sizing: border-box; white-space: nowrap; }
     .imd-topbar__panel-group { break-inside: avoid; }
     .imd-chrome__menu-wrap.imd-topbar__compact { display: none; }
+    @media (max-width: 1399px) {
+      /* Names vary in length, so the avatar stands in on smaller screens. */
+      .imd-topbar .imd-chrome__user-name { display: none; }
+    }
     @media (max-width: 1239px) {
       /* Too narrow for every section in one row: the same menu goes under one button. */
       .imd-topbar__nav { visibility: hidden; flex: 0 0 0; overflow: hidden; }
