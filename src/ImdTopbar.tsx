@@ -45,7 +45,7 @@ function ensureTopbarStyles() {
       align-items: center;
       display: flex;
       flex-shrink: 0;
-      margin-right: 40px;
+      margin-right: 20px;
       text-decoration: none;
     }
     .imd-topbar__logo {
@@ -56,7 +56,7 @@ function ensureTopbarStyles() {
       align-items: center;
       display: flex;
       flex: 1;
-      gap: 24px;
+      gap: 14px;
       min-width: 0;
     }
     .imd-topbar__nav-more {
@@ -81,7 +81,11 @@ function ensureTopbarStyles() {
     .imd-topbar__panel .imd-chrome__menu-item, .imd-topbar__panel .imd-chrome__menu-label { box-sizing: border-box; white-space: nowrap; }
     .imd-topbar__panel-group { break-inside: avoid; }
     .imd-chrome__menu-wrap.imd-topbar__compact { display: none; }
-    @media (max-width: 1099px) {
+    @media (max-width: 1399px) {
+      /* Names vary in length, so the avatar stands in on smaller screens. */
+      .imd-topbar .imd-chrome__user-name { display: none; }
+    }
+    @media (max-width: 1239px) {
       /* Too narrow for every section in one row: the same menu goes under one button. */
       .imd-topbar__nav { visibility: hidden; flex: 0 0 0; overflow: hidden; }
       .imd-chrome__menu-wrap.imd-topbar__compact { display: inline-block; }
@@ -108,7 +112,7 @@ function ensureTopbarStyles() {
       align-items: center;
       display: flex;
       flex-shrink: 0;
-      gap: 16px;
+      gap: 8px;
       margin-left: auto;
     }
     @media (max-width: 767px) {
@@ -313,7 +317,7 @@ function TopbarNav({ sections, currentId, location, renderLink }: { sections: Vi
   );
 }
 
-/** Below 1100px every section sits under one Menu button. */
+/** Below 1240px every section sits under one Menu button. */
 function CompactMenu({ sections, location, renderLink }: { sections: VisibleSection[]; location: string; renderLink?: RenderLink }) {
   const Link = renderLink ?? DefaultLink;
   const [open, setOpen] = useState(false);
