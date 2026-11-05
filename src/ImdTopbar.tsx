@@ -208,6 +208,8 @@ export interface ImdTopbarProps {
   logoSrc?: string;
   logoAlt?: string;
   toolsSlot?: ReactNode;
+  /** Optional complete host authorization policy, replacing default admin-only visibility. Applied to desktop and compact menus. */
+  canNavigate?: (href: string) => boolean;
 }
 
 function UserMenuInline({ user, onLogout, accountHref, renderLink, menuAlign = 'right' }: { user: ChromeUser | null | undefined; onLogout: () => void; accountHref?: string; renderLink?: RenderLink; menuAlign?: 'left' | 'right' }) {
@@ -364,15 +366,15 @@ function CompactMenu({ sections, location, renderLink }: { sections: VisibleSect
   );
 }
 
-export function ImdTopbar({ currentModuleId, pathname, search = '', user, onLogout, accountHref, renderLink, logoSrc = '/media/logos/imd.svg', logoAlt = 'IMD Logo', toolsSlot }: ImdTopbarProps) {
+export function ImdTopbar({ currentModuleId, pathname, search = '', user, onLogout, accountHref, renderLink, logoSrc = '/media/logos/imd.svg', logoAlt = 'IMD Logo', toolsSlot, canNavigate }: ImdTopbarProps) {
   ensureTopbarStyles();
   const Link = renderLink ?? DefaultLink;
   const location = `${pathname}${search}`;
   const logoHref = moduleUrl('home');
   const sections: VisibleSection[] = getSwitcherModules().map((section) => ({
     section,
-    items: section.menu.filter((item) => !item.adminOnly || user?.isAdmin),
-  }));
+    items: section.menu.filter((item) => canNavigate ? canNavigate(menuItemHref(section, item)) : !item.adminOnly || user?.isAdmin),
+  })).filter(({ section, items }) => section.menu.length ? items.length > 0 : !canNavigate || canNavigate(moduleLandingHref(section)));
   return (
     <header className="imd-topbar">
       <div className="imd-topbar__inner">
