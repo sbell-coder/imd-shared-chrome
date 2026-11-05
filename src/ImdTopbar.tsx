@@ -220,7 +220,7 @@ function UserMenuInline({ user, onLogout, accountHref, renderLink, menuAlign = '
   const initials = user?.name ? user.name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase() : '';
   return (
     <div className="imd-chrome__menu-wrap" ref={ref}>
-      <button type="button" className="imd-chrome__btn" onClick={() => user && setOpen((o) => !o)} aria-haspopup="true" aria-expanded={open}>
+      <button type="button" className="imd-chrome__btn" onClick={() => user && setOpen((o) => !o)} aria-label={user?.name ? `Account menu for ${user.name}` : 'Account menu'} aria-haspopup="true" aria-expanded={open}>
         {user ? (
           <>
             {user.avatarUrl ? <img className="imd-chrome__avatar" src={user.avatarUrl} alt="" /> : <span className="imd-chrome__avatar-fallback">{initials}</span>}
